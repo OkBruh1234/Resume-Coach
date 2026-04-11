@@ -1,0 +1,31 @@
+# Environment Variables (CRITICAL)
+.env
+backend_fastapi/.env
+frontend_react/.env
+
+# Node & React Modules
+node_modules/
+frontend_react/node_modules/
+dist/
+build/
+.npm/
+
+# Python & Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+backend_fastapi/venv/
+
+# Databases
+*.sqlite3
+*.db
+backend_fastapi/resume.db
+
+# OS Files
+.DS_Store
+Thumbs.db

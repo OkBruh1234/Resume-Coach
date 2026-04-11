@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend_fastapi:
+    build: ./backend_fastapi
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend_fastapi:/app
+    env_file:
+      - ./backend_fastapi/.env
+
+  frontend_react:
+    build: ./frontend_react
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend_fastapi

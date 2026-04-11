@@ -1,0 +1,8 @@
+{
+  "python.defaultInterpreterPath": "c:\\Users\\KIIT\\Downloads\\Toy-Project\\backend\\venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "c:\\Users\\KIIT\\Downloads\\Toy-Project\\backend_fastapi",
+    "c:\\Users\\KIIT\\Downloads\\Toy-Project\\backend"
+  ],
+  "python.analysis.typeCheckingMode": "off"
+}
