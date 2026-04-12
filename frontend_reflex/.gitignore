@@ -4,4 +4,4 @@ __pycache__/
 *.py[cod]
 assets/external/
 *.db
-frontend
+frontend_reflex

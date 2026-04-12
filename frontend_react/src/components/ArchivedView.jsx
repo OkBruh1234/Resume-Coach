@@ -29,7 +29,7 @@ export default function ArchivedView({ user }) {
       try {
         const res = await axios.get(`${API_URL}/history/${id}`);
         setResults(res.data);
-        setChatHistory([]);
+        setChatHistory(res.data.chat_history || []);
       } catch (err) {
         navigate('/main');
       } finally {
@@ -64,6 +64,7 @@ export default function ArchivedView({ user }) {
         message: chatMessage,
         history: chatHistory,
         user_id: String(user.id),
+        analysis_id: results ? results.id : null,
         context: {
           job_desc: results.job_description,
           ats_score: results.ats_score,

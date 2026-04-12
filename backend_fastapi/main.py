@@ -25,6 +25,13 @@ try:
 except Exception as e:
     pass # Expected. The column exists.
 
+try:
+    with database.engine.connect() as connection:
+        connection.execute(text("ALTER TABLE resume_analyses ADD COLUMN chat_history JSON"))
+        connection.commit()
+except Exception as e:
+    pass # Expected. The column exists.
+
 app = FastAPI(title="Resume Coach AI Engine")
 
 # CORS Middleware (Perfectly mirrors Django-CORS-Headers)
@@ -159,11 +166,13 @@ def get_history_detail(history_id: int, db: Session = Depends(database.get_db)):
     match_level = "High" if score_val >= 75 else ("Medium" if score_val >= 50 else "Low")
 
     return {
+        "id": h.id,
         "job_description": h.job_description,
         "ats_score": h.ats_score,
         "ats_match_level": match_level,
         "gap_analysis": h.gap_analysis,
-        "resume_text": text
+        "resume_text": text,
+        "chat_history": h.chat_history or []
     }
 
 @app.post("/api/analyze/")
@@ -233,9 +242,10 @@ class ChatPayload(BaseModel):
     history: List[Dict[str, str]] = []
     context: Dict[str, Any] = {}
     user_id: str = None
+    analysis_id: int = None
 
 @app.post("/api/chat/")
-def chat(payload: ChatPayload):
+def chat(payload: ChatPayload, db: Session = Depends(database.get_db)):
     if not os.environ.get("GEMINI_API_KEY"):
         raise HTTPException(status_code=401, detail="Missing API Key!")
     
@@ -260,6 +270,17 @@ def chat(payload: ChatPayload):
         messages.append(HumanMessage(content=payload.message))
 
         response = llm.invoke(messages)
+        
+        if payload.analysis_id:
+            analysis = db.query(models.ResumeAnalysis).filter(models.ResumeAnalysis.id == payload.analysis_id).first()
+            if analysis:
+                new_hist = payload.history + [
+                    {"role": "user", "content": payload.message},
+                    {"role": "model", "content": response.content}
+                ]
+                analysis.chat_history = new_hist
+                db.commit()
+
         return {"response": response.content}
     except Exception as e:
         return {"response": f"AI Studio Connection Issue: {str(e)}"}

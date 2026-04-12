@@ -18,7 +18,7 @@ if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
 
 try:
     print(f"API Key: {os.environ.get('GEMINI_API_KEY', 'MISSING')[:5]}...")
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
     print("Invoking model...")
     res = llm.invoke("Hi")
     print("SUCCESS!", res)
@@ -26,7 +26,7 @@ except Exception as e:
     print("ERROR:", e)
 
     print("\nTrying alternative model strings...")
-    for mod in ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-1.5-flash-001"]:
+    for mod in ["gemini-2.5-flash-latest", "gemini-2.5-pro-latest", "gemini-2.5-flash-001"]:
         try:
             print(f"Testing {mod}...")
             llm2 = ChatGoogleGenerativeAI(model=mod)

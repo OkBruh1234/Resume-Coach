@@ -64,7 +64,7 @@ export default function Dashboard({ user, onLogout }) {
       setResults(res.data);
       setJobDesc(res.data.job_description);
       setFile(null); // File is archived on backend
-      setChatHistory([]);
+      setChatHistory(res.data.chat_history || []);
     } catch(err) {
       alert("Failed to load archived record.");
     } finally {
@@ -86,6 +86,7 @@ export default function Dashboard({ user, onLogout }) {
         message: chatMessage,
         history: chatHistory,
         user_id: String(user.id),
+        analysis_id: results ? results.id : null,
         context: results ? {
           job_desc: results.job_description || jobDesc,
           ats_score: results.ats_score,
