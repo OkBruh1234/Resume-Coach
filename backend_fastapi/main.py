@@ -185,9 +185,9 @@ def analyze_resume(
     if not os.environ.get("GEMINI_API_KEY"):
         raise HTTPException(status_code=401, detail="Backend failed to read GEMINI_API_KEY from `.env`. Recreate the file or set the global variable!")
 
-    # Native File Saving handling (Replacing Django's Media Handler)
-    os.makedirs("./media/resumes", exist_ok=True)
-    file_location = f"./media/resumes/{file.filename}"
+    # Serverless File Saving handling (Bypassing Read-Only Host Filesystems)
+    os.makedirs("/tmp/media/resumes", exist_ok=True)
+    file_location = f"/tmp/media/resumes/{file.filename}"
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
