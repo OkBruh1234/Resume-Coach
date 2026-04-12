@@ -8,3 +8,5 @@ pdfplumber
 langchain-google-genai
 langchain
 pydantic
+google-api-core
+google-auth
