@@ -1,8 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:////tmp/resume.db"
-# If using postgres natively later: "postgresql://postgres:password@localhost/mydb"
+import os
+
+# Google Cloud Storage Native Mount check
+db_dir = "/mnt/data"
+if os.path.exists(db_dir):
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///{db_dir}/resume.db"
+else:
+    SQLALCHEMY_DATABASE_URL = "sqlite:////tmp/resume.db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}

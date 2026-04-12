@@ -39,15 +39,8 @@ export default function ArchivedView({ user }) {
     loadData();
   }, [id, navigate]);
 
-  const handleUpgrade = async () => {
-    try {
-      await axios.post(`${API_URL}/upgrade-pro/`, { user_id: String(user.id) });
-      const newUserData = { ...user, is_pro: true };
-      localStorage.setItem('userData', JSON.stringify(newUserData));
-      window.location.reload(); 
-    } catch(err) {
-      alert("Payment test failed.");
-    }
+  const handleUpgrade = () => {
+    navigate('/checkout');
   };
 
   const sendChat = async (e) => {
@@ -121,10 +114,10 @@ export default function ArchivedView({ user }) {
           {chatLoading && <div className="chat-bubble ai pulse-anim">Thinking dynamically...</div>}
         </div>
 
-        {(!user.is_pro && chatHistory.filter(m => m.role === 'user').length >= 3) ? (
+        {(!user.is_pro && chatHistory.filter(m => m.role === 'user').length >= 5) ? (
           <div className="paywall-overlay pop-in-anim">
             <Lock size={20} className="icon-blue" />
-            <p><strong>Free Limit Reached (3/3)</strong></p>
+            <p><strong>Free Limit Reached (5/5)</strong></p>
             <p className="text-sm muted-text mb-1">Upgrade to Premium for unlimited AI interview coaching and absolute priority execution.</p>
             <button onClick={handleUpgrade} className="btn-primary" style={{marginTop: '0.5rem'}}>
               Unlock Pro Now

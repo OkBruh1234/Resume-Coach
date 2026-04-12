@@ -4,6 +4,7 @@ import Login from './components/Login';
 import SidebarLayout from './components/SidebarLayout';
 import Analyzer from './components/Analyzer';
 import ArchivedView from './components/ArchivedView';
+import Checkout from './components/Checkout';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -45,6 +46,7 @@ function App() {
           <Route index element={<Navigate to="/main" />} />
           <Route path="main" element={<Analyzer user={user} />} />
           <Route path="history/:id" element={<ArchivedView user={user} />} />
+          <Route path="checkout" element={<Checkout user={user} setUser={setUser} />} />
         </Route>
       </Routes>
     </BrowserRouter>
