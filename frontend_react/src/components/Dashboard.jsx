@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { LogOut, LayoutDashboard, BrainCircuit, UploadCloud, Zap, Send } from 'lucide-react';
 import './Dashboard.css';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = 'https://resume-coach-541990120066.europe-west1.run.app/api';
 
 export default function Dashboard({ user, onLogout }) {
   const [history, setHistory] = useState([]);

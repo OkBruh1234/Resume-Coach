@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Zap, BrainCircuit, Send, ArrowLeft, Lock } from 'lucide-react';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = 'https://resume-coach-541990120066.europe-west1.run.app/api';
 
 const safeRender = (val) => {
   if (!val) return "None";

@@ -4,7 +4,7 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { BrainCircuit, Mail, Lock, User } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = 'https://resume-coach-541990120066.europe-west1.run.app/api';
 const GOOGLE_CLIENT_ID = "541990120066-u0ifhuki32pdpddv5dsklh3tqvq96qta.apps.googleusercontent.com";
 
 export default function Login({ onLogin }) {

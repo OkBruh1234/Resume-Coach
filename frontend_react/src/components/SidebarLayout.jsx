@@ -4,7 +4,7 @@ import axios from 'axios';
 import { LayoutDashboard, LogOut, PlusCircle } from 'lucide-react';
 import './Dashboard.css';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = 'https://resume-coach-541990120066.europe-west1.run.app/api';
 
 export default function SidebarLayout({ user, onLogout }) {
   const [history, setHistory] = useState([]);

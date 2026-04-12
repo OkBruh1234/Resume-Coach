@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { UploadCloud, Zap, BrainCircuit, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = 'https://resume-coach-541990120066.europe-west1.run.app/api';
 
 export default function Analyzer({ user }) {
   const [jobDesc, setJobDesc] = useState('');
