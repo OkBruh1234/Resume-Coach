@@ -29,3 +29,8 @@ backend_fastapi/resume.db
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Legacy Prototypes (Excluded from MVP Cloud Push)
+frontend/
+frontend_reflex/
+backend/
