@@ -28,9 +28,9 @@ export default function Analyzer({ user }) {
 
     try {
       const res = await axios.post(`${API_URL}/analyze/`, formData);
-      navigate(`/history/${res.data.data.id}`); // Auto-redirect to the detailed history view once computed successfully!
+      navigate(`/history/${res.data.data.id}`); 
     } catch(err) {
-      alert("Analysis failed.");
+      alert(`API Error: ${err.response?.data?.detail || err.message}`);
     } finally {
       setLoading(false);
     }
