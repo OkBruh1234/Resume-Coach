@@ -48,8 +48,8 @@ GEMINI_API_KEY=your_studio_key_here
 ```bash
 docker-compose up --build
 ```
-* **Frontend UI**: [http://localhost:3000](http://localhost:3000)
-* **API Documentation (Swagger)**: [http://localhost:8080/docs](http://localhost:8080/docs)
+* **Frontend UI**: https://resume-coach-app-541990120066.europe-west1.run.app
+* **API Documentation (Swagger)/ Backend**: https://resume-coach-541990120066.europe-west1.run.app/docs
 
 ## ☁️ Cloud Operations
 This ecosystem has been rigorously structured to push directly to **Google Cloud Run** using `gcloud builds`. Both environments scale flawlessly at zero-tier constraints.
