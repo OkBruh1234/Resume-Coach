@@ -2,6 +2,9 @@
 .env
 backend_fastapi/.env
 frontend_react/.env
+.vscode
+
+! .vscode/settings.json
 
 # Node & React Modules
 node_modules/
