@@ -7,6 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException, UploadFile, Form, File
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Dict, Any
+import uvicorn
 
 # Load environment variables cleanly
 from dotenv import load_dotenv
