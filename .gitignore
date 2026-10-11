@@ -5,6 +5,7 @@ frontend_react/.env
 .vscode
 
 ! .vscode/settings.json
+! .vscode/tools.json
 
 # Node & React Modules
 node_modules/

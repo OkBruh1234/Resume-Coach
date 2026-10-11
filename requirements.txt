@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+SQLAlchemy
+pydantic
+python-dotenv
+langchain-google-genai
+langchain-core
+google-auth
+google-api-core
+pdfplumber
+python-multipart
+psycopg2-binary
+requests
+alembic

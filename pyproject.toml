@@ -1,0 +1,29 @@
+[project]
+name = "resume-coach"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.20.0",
+    "fastapi>=0.143.0",
+    "google-api-core>=2.42.0",
+    "google-auth>=2.61.0",
+    "langchain-core>=1.6.9",
+    "langchain-google-genai>=4.4.0",
+    "pdfplumber>=0.11.10",
+    "psycopg2-binary>=2.9.13",
+    "pydantic>=2.14.0",
+    "python-dotenv>=1.2.4",
+    "python-multipart>=0.0.32",
+    "requests>=2.34.2",
+    "sqlalchemy>=2.1.4",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+resume-coach = "resume_coach:main"
+
+[build-system]
+requires = ["uv_build>=0.12.12,<0.13.0"]
+build-backend = "uv_build"
