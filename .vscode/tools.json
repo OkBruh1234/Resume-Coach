@@ -1,0 +1,12 @@
+{
+  "tools": {
+    "python": {
+      "command": "python3",
+      "args": ["-m", "pytest"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    }
+  }
+}
