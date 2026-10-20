@@ -16,3 +16,20 @@ services:
       - "3000:80"
     depends_on:
       - backend_fastapi
+  postgres:
+  image: postgres:17
+  restart: unless-stopped
+  environment:
+    POSTGRES_DB: resumecoach
+    POSTGRES_USER: resumecoach
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U resumecoach -d resumecoach"]
+    interval: 5s
+    timeout: 5s
+    retries: 10
+
+volumes:
+  postgres_data:
