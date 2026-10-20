@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   backend_fastapi:
     build:
       context: .
-      dockerfile: backend_fastapi/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     volumes:
