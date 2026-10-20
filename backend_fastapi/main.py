@@ -11,7 +11,6 @@ import uvicorn
 
 # Load environment variables cleanly
 from dotenv import load_dotenv
-
 load_dotenv()
 
 import models, database, utils
