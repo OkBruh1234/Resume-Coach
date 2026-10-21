@@ -1,21 +1,30 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-
 import os
+from sqlalchemy import URL, create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Google Cloud Storage Native Mount check
-db_dir = "/mnt/data"
-if os.path.exists(db_dir):
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{db_dir}/resume.db"
-else:
-    SQLALCHEMY_DATABASE_URL = "sqlite:////tmp/resume.db"
+
+DATABASE_URL = URL.create(
+    drivername="postgresql+psycopg2",
+    username=os.environ["POSTGRES_USER"],
+    password=os.environ["POSTGRES_PASSWORD"],
+    host="postgres",
+    port=5432,
+    database=os.environ["POSTGRES_DB"],
+)
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    DATABASE_URL,
+    pool_pre_ping=True,
 )
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+)
 
 Base = declarative_base()
+
 
 def get_db():
     db = SessionLocal()
