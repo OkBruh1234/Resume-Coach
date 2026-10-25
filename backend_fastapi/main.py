@@ -15,23 +15,6 @@ load_dotenv()
 
 import models, database, utils
 
-models.Base.metadata.create_all(bind=database.engine)
-
-# Dynamically patch SQLite constraints gracefully for rolling updates
-from sqlalchemy import text
-try:
-    with database.engine.connect() as connection:
-        connection.execute(text("ALTER TABLE users ADD COLUMN is_pro INTEGER DEFAULT 0"))
-        connection.commit()
-except Exception as e:
-    pass # Expected. The column exists.
-
-try:
-    with database.engine.connect() as connection:
-        connection.execute(text("ALTER TABLE resume_analyses ADD COLUMN chat_history JSON"))
-        connection.commit()
-except Exception as e:
-    pass # Expected. The column exists.
 
 app = FastAPI(title="Resume Coach AI Engine")
 

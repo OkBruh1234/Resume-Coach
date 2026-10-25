@@ -14,4 +14,7 @@ COPY backend_fastapi/ .
 
 ENV PATH="/opt/venv/bin:$PATH"
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn main:app --host 0.0.0.0 --port 8080"]
+
+# EXPOSE only documents the container port; use `docker run -p 8000:8080` to map host port 8000 to container port 8080.
+EXPOSE 8080
