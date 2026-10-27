@@ -4,5 +4,6 @@
     "c:\\Users\\KIIT\\Downloads\\Toy-Project\\backend_fastapi",
     "c:\\Users\\KIIT\\Downloads\\Toy-Project\\backend"
   ],
-  "python.analysis.typeCheckingMode": "off"
+  "python.analysis.typeCheckingMode": "off",
+  "python.terminal.useEnvFile": true
 }

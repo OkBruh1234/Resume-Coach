@@ -12,3 +12,7 @@ python-multipart
 psycopg2-binary
 requests
 alembic
+mcp
+azure-identity
+openai
+logging

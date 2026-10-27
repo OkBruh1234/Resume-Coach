@@ -6,12 +6,16 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.20.0",
+    "azure-identity>=1.27.0",
     "azure-storage-blob>=12.31.0",
     "fastapi>=0.143.0",
     "google-api-core>=2.42.0",
     "google-auth>=2.61.0",
     "langchain-core>=1.6.9",
     "langchain-google-genai>=4.4.0",
+    "logging>=0.4.9.6",
+    "mcp>=2.3.0",
+    "openai>=3.39.0",
     "pdfplumber>=0.11.10",
     "pgvector>=0.5.1",
     "psycopg2-binary>=2.9.13",
