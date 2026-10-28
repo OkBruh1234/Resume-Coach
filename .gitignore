@@ -2,7 +2,6 @@
 .env
 backend_fastapi/.env
 frontend_react/.env
-.vscode
 
 ! .vscode/settings.json
 ! .vscode/tools.json
@@ -21,6 +20,8 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.vscode
+.pytest_cache
 env/
 venv/
 .venv/
