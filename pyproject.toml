@@ -24,7 +24,8 @@ dependencies = [
     "requests>=2.34.2",
     "sqlalchemy>=2.1.4",
     "uvicorn[standard]>=0.54.0",
-    "azure-identity>=1.27.0"
+    "azure-identity>=1.27.0",
+    "azure-storage-blob>=12.31.0",
 ]
 
 [project.scripts]
