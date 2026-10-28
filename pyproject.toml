@@ -11,14 +11,21 @@ dependencies = [
     "google-auth>=2.61.0",
     "langchain-core>=1.6.9",
     "langchain-google-genai>=4.4.0",
+    "mcp>=2.3.0",
+    "openai>=3.39.0",
     "pdfplumber>=0.11.10",
+    "pgvector>=0.5.1",
     "psycopg2-binary>=2.9.13",
     "pydantic>=2.14.0",
+    "pypdf>=6.21.2",
+    "pytest>=9.1.1",
     "python-dotenv>=1.2.4",
     "python-multipart>=0.0.32",
     "requests>=2.34.2",
     "sqlalchemy>=2.1.4",
     "uvicorn[standard]>=0.54.0",
+    "azure-identity>=1.27.0",
+    "azure-storage-blob>=12.31.0",
 ]
 
 [project.scripts]

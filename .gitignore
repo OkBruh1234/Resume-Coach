@@ -6,6 +6,7 @@ frontend_react/.env
 
 ! .vscode/settings.json
 ! .vscode/tools.json
+! .vscode/mcp.json
 
 # Node & React Modules
 node_modules/
@@ -24,6 +25,7 @@ env/
 venv/
 .venv/
 backend_fastapi/venv/
+tests/__pycache__
 
 # Databases
 *.sqlite3
