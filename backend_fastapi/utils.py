@@ -5,7 +5,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 def analyze_resume_with_rag(resume_text: str, job_description: str) -> dict:
     """
-    Passes the complete resume and JD directly to Gemini 1.5 Flash leveraging
+    Passes the complete resume and JD directly to Gemini 2.5 Flash leveraging
     its massive 1M token context window!
     """
     if not resume_text.strip():

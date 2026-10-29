@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, JSON, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
+from sqlalchemy import BigInteger
 
 class User(Base):
     __tablename__ = "users"
@@ -25,5 +26,9 @@ class ResumeAnalysis(Base):
     gap_analysis = Column(JSON)
     chat_history = Column(JSON, default=list)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    blob_key = Column(String, nullable=True, index=True)
+    original_filename = Column(String, nullable=True)
+    content_type = Column(String, nullable=True)
+    size_bytes = Column(BigInteger, nullable=True)
     
     user = relationship("User", back_populates="analyses")

@@ -1,0 +1,26 @@
+name: run-checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    name: Python unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Install locked dependencies
+        run: uv sync --locked
+
+      - name: Run pytest
+        run: uv run pytest -q

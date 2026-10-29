@@ -9,10 +9,6 @@ services:
       - ./backend_fastapi:/app
     env_file:
       - ./backend_fastapi/.env
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-resumecoach}
-      POSTGRES_USER: ${POSTGRES_USER:-resumecoach}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-resumecoach_dev}
     depends_on:
       postgres:
         condition: service_healthy
@@ -27,10 +23,8 @@ services:
   postgres:
     image: postgres:18
     restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-resumecoach}
-      POSTGRES_USER: ${POSTGRES_USER:-resumecoach}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-resumecoach_dev}
+    env_file:
+      - ./backend_fastapi/.env
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
