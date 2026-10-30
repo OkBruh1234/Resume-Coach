@@ -2,6 +2,7 @@ import os
 import shutil
 import warnings
 warnings.filterwarnings("ignore")
+import pdfplumber
 
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, Form, File
 from sqlalchemy.orm import Session
@@ -14,6 +15,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import models, database, utils
+from io import BytesIO
+from uuid import uuid4
+from blob_storage import BlobStorage
 
 
 app = FastAPI(title="Resume Coach AI Engine")
@@ -166,6 +170,43 @@ def analyze_resume(
     user_id: str = Form(None),
     db: Session = Depends(database.get_db)
 ):
+
+    # 1. Read PDF bytes
+    pdf_bytes = file.file.read()
+
+    if not pdf_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail="Uploaded PDF is empty",
+        )
+
+    # 2. Extract text without writing a temporary PDF
+    try:
+        with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
+            text = "\n".join(
+                page.extract_text() or ""
+                for page in pdf.pages
+            )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=400,
+            detail="Unable to parse uploaded PDF",
+        ) from exc
+
+    # 3. Generate a unique Blob object key
+    blob_key = f"resumes/{uuid4().hex}.pdf"
+
+    # 4. Store original PDF bytes in Azure
+    try:
+        storage = BlobStorage()
+        storage.upload(blob_key, BytesIO(pdf_bytes))
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Resume storage failed",
+        ) from exc
+
+    
     if not os.environ.get("GEMINI_API_KEY"):
         raise HTTPException(status_code=401, detail="Backend failed to read GEMINI_API_KEY from `.env`. Recreate the file or set the global variable!")
 
