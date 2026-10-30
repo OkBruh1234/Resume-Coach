@@ -1,5 +1,4 @@
 import os
-import shutil
 import warnings
 warnings.filterwarnings("ignore")
 import pdfplumber
@@ -170,7 +169,11 @@ def analyze_resume(
     user_id: str = Form(None),
     db: Session = Depends(database.get_db)
 ):
-
+    if not os.environ.get("GEMINI_API_KEY"):
+        raise HTTPException(
+            status_code=401,
+            detail="GEMINI_API_KEY is missing",
+        )
     # 1. Read PDF bytes
     pdf_bytes = file.file.read()
 
@@ -206,23 +209,6 @@ def analyze_resume(
             detail="Resume storage failed",
         ) from exc
 
-    
-    if not os.environ.get("GEMINI_API_KEY"):
-        raise HTTPException(status_code=401, detail="Backend failed to read GEMINI_API_KEY from `.env`. Recreate the file or set the global variable!")
-
-    # Serverless File Saving handling (Bypassing Read-Only Host Filesystems)
-    os.makedirs("/tmp/media/resumes", exist_ok=True)
-    file_location = f"/tmp/media/resumes/{file.filename}"
-    with open(file_location, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    import pdfplumber
-    try:
-        with pdfplumber.open(file_location) as pdf:
-            text = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to parse PDF bytes: {str(e)}")
-
     try:
         rag_result = utils.analyze_resume_with_rag(text, job_description)
         score = rag_result.get("ats_score", "Unknown")
@@ -240,11 +226,16 @@ def analyze_resume(
     if user_id and user_id != "null" and user_id != "":
         analysis = models.ResumeAnalysis(
             user_id=int(user_id),
-            resume_file=file_location,
+            resume_file=blob_key,
+            blob_key=blob_key,
+            original_filename=file.filename,
+            content_type=file.content_type,
+            size_bytes=len(pdf_bytes),
             job_description=job_description,
             ats_score=score,
-            gap_analysis=gaps
-        )
+            gap_analysis=gaps,
+    )
+        
         db.add(analysis)
         db.commit()
         db.refresh(analysis)
