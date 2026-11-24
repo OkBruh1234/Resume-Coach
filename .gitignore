@@ -20,7 +20,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-.vscode
 .pytest_cache
 env/
 venv/
@@ -31,7 +30,7 @@ tests/__pycache__
 # Databases
 *.sqlite3
 *.db
-backend_fastapi/resume.db
+backend_fastapi/media/resumes
 
 # OS Files
 .DS_Store

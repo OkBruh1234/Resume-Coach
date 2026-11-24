@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, JSON, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
-from sqlalchemy import BigInteger
+from sqlalchemy import BigInteger, UniqueConstraint
 
 class User(Base):
     __tablename__ = "users"
@@ -32,3 +32,13 @@ class ResumeAnalysis(Base):
     size_bytes = Column(BigInteger, nullable=True)
     
     user = relationship("User", back_populates="analyses")
+
+    analysis_number = Column(Integer, nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "analysis_number",
+            name="uq_user_analysis_number",
+        ),
+    )

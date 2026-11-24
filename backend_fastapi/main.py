@@ -3,10 +3,10 @@ import warnings
 warnings.filterwarnings("ignore")
 import pdfplumber
 
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, Form, File
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, Form, File, Path, Query
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from typing import List, Dict, Any
+from pydantic import BaseModel, Field, field_validator, model_validator, EmailStr
+from typing import List, Dict, Any, Annotated
 import uvicorn
 
 # Load environment variables cleanly
@@ -34,9 +34,9 @@ app.add_middleware(
 import hashlib
 
 class RegisterPayload(BaseModel):
-    email: str
-    name: str
-    password: str
+    email: EmailStr
+    name: Annotated[str, Field(min_length= 1, max_length= 100, description="Name of the User logging in ")]
+    password: Annotated[str, Field(min_length=8, max_length= 15, description= "Select a strong password between 8-15 characters")]
 
 @app.post("/api/register/")
 def register(payload: RegisterPayload, db: Session = Depends(database.get_db)):
@@ -45,7 +45,7 @@ def register(payload: RegisterPayload, db: Session = Depends(database.get_db)):
         raise HTTPException(status_code=400, detail="EMAIL_EXISTS")
     if not payload.password:
         raise HTTPException(status_code=400, detail="Missing matching password input")
-    hashed = hashlib.sha256(payload.password.encode()).hexdigest()
+    hashed = hashlib.sha3_512(payload.password.encode()).hexdigest()
     user = models.User(email=payload.email, name=payload.name, password_hash=hashed)
     db.add(user)
     db.commit()
@@ -53,7 +53,7 @@ def register(payload: RegisterPayload, db: Session = Depends(database.get_db)):
     return {"token": str(user.id), "user": {"id": user.id, "name": user.name, "email": user.email, "is_pro": bool(user.is_pro)}}
 
 class LoginPayload(BaseModel):
-    email: str
+    email: EmailStr
     password: str = None
     is_oauth: bool = False
     name: str = None
@@ -101,14 +101,14 @@ def login(payload: LoginPayload, db: Session = Depends(database.get_db)):
             raise HTTPException(status_code=401, detail="INVALID_CREDENTIALS")
         if not payload.password:
             raise HTTPException(status_code=400, detail="Missing password input")
-        hashed = hashlib.sha256(payload.password.encode()).hexdigest()
+        hashed = hashlib.sha3_512(payload.password.encode()).hexdigest()
         if user.password_hash != hashed:
             raise HTTPException(status_code=401, detail="INVALID_CREDENTIALS")
 
-    return {"token": str(user.id), "user": {"id": user.id, "name": user.name, "email": user.email, "is_pro": bool(user.is_pro)}}
+    return {"token": int(user.id), "user": {"id": user.id, "name": user.name, "email": user.email, "is_pro": bool(user.is_pro)}}
 
 class UpgradePayload(BaseModel):
-    user_id: str
+    user_id: Annotated[int, Field(description="Enter the user ID", gt=0)]
 
 @app.post("/api/upgrade-pro/")
 def upgrade_user(payload: UpgradePayload, db: Session = Depends(database.get_db)):
@@ -122,19 +122,19 @@ def upgrade_user(payload: UpgradePayload, db: Session = Depends(database.get_db)
 
 
 @app.get("/api/user/{user_id}/history/")
-def get_user_history(user_id: int, db: Session = Depends(database.get_db)):
+def get_user_history(user_id: Annotated[int, Path(title='users history to analyze', gt=  0)], db: Session = Depends(database.get_db)):
     history = db.query(models.ResumeAnalysis).filter(models.ResumeAnalysis.user_id == user_id).order_by(models.ResumeAnalysis.created_at.desc()).all()
     res = []
     for h in history:
         # Heavily truncate job descriptions to keep the sidebar cards tight and premium
-        raw_job = h.job_description or "General Analysis"
+        raw_job = h. job_description or "General Analysis"
         job_title = (raw_job[:45] + "...") if len(raw_job) > 45 else raw_job
         date_str = str(h.created_at).split(" ")[0] if h.created_at else "Today"
         res.append({"id": h.id, "ats_score": h.ats_score, "date": date_str, "job": job_title})
     return {"history": res}
 
 @app.get("/api/history/{history_id}")
-def get_history_detail(history_id: int, db: Session = Depends(database.get_db)):
+def get_history_detail(history_id: Annotated[int, Path(title='history ID to check for resume variations', gt=0)], db: Session = Depends(database.get_db)):
     h = db.query(models.ResumeAnalysis).filter(models.ResumeAnalysis.id == history_id).first()
     if not h:
         raise HTTPException(status_code=404, detail="Analysis not found")
@@ -164,16 +164,37 @@ def get_history_detail(history_id: int, db: Session = Depends(database.get_db)):
 
 @app.post("/api/analyze/")
 def analyze_resume(
-    job_description: str = Form(...),
-    file: UploadFile = File(...),
-    user_id: str = Form(None),
+    job_description: str = Form(),
+    file: UploadFile = File(),
+    user_id: int = Form(),
     db: Session = Depends(database.get_db)
 ):
     if not os.environ.get("GEMINI_API_KEY"):
         raise HTTPException(
-            status_code=401,
+            status_code=404,
             detail="GEMINI_API_KEY is missing",
         )
+
+    user = db.query(models.User).filter(
+    models.User.id == user_id
+    ).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="USER_NOT_FOUND",
+        )
+
+    analysis_count = db.query(models.ResumeAnalysis).filter(
+        models.ResumeAnalysis.user_id == user_id
+    ).count()
+
+    if not bool(user.is_pro) and analysis_count >= 10:
+        raise HTTPException(
+            status_code=403,
+            detail="FREE_TIER_LIMIT_REACHED",
+        )
+    
     # 1. Read PDF bytes
     pdf_bytes = file.file.read()
 
@@ -182,7 +203,6 @@ def analyze_resume(
             status_code=400,
             detail="Uploaded PDF is empty",
         )
-
     # 2. Extract text without writing a temporary PDF
     try:
         with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
@@ -215,31 +235,27 @@ def analyze_resume(
         match_level = rag_result.get("ats_match_level", "Unknown")
         gaps = rag_result.get("gap_analysis", {})
     except Exception as e:
-        score = "50"
-        match_level = "Medium"
-        gaps = {
-            "missing_keywords": ["FastAPI AI Backend Error"],
-            "suggestions": f"Critical AI Pipeline Blockade: {str(e)}"
-        }
+        raise HTTPException(
+            status_code=502,
+            detail="ANALYSIS_PIPELINE_FAILED",
+            ) from e
 
-    analysis_id = None
-    if user_id and user_id != "null" and user_id != "":
-        analysis = models.ResumeAnalysis(
-            user_id=int(user_id),
-            resume_file=blob_key,
-            blob_key=blob_key,
-            original_filename=file.filename,
-            content_type=file.content_type,
-            size_bytes=len(pdf_bytes),
-            job_description=job_description,
-            ats_score=score,
-            gap_analysis=gaps,
-    )
-        
-        db.add(analysis)
-        db.commit()
-        db.refresh(analysis)
-        analysis_id = analysis.id
+    
+    analysis = models.ResumeAnalysis(
+        user_id=int(user_id),
+        resume_file=blob_key,
+        blob_key=blob_key,
+        original_filename=file.filename,
+        content_type=file.content_type,
+        size_bytes=len(pdf_bytes),
+        job_description=job_description,
+        ats_score=score,
+        gap_analysis=gaps,
+    )       
+    db.add(analysis)
+    db.commit()
+    db.refresh(analysis)
+    analysis_id = analysis.id
 
     return {
         "message": "Analysis successful.",
@@ -254,16 +270,24 @@ def analyze_resume(
 
 # Pydantic schemas forcefully type-check incoming JSONs to prevent breaks
 class ChatPayload(BaseModel):
-    message: str
+    message: Annotated[str, Field(description='Enter the message properly')]
     history: List[Dict[str, str]] = []
     context: Dict[str, Any] = {}
-    user_id: str = None
-    analysis_id: int = None
+    user_id: Annotated[int, Field(gt= 0)]
+    analysis_id: Annotated[int, Field(gt = 0, lt = 10, description='Ananlysis ID is generated when resume is sent to LLM')]
+
+    @field_validator('user_id')
+    @classmethod
+    def validate_user_id(cls, value: int) -> int:
+        if not value:
+            raise ValueError("User_id cannot be blank")
+            
+        return value
 
 @app.post("/api/chat/")
 def chat(payload: ChatPayload, db: Session = Depends(database.get_db)):
     if not os.environ.get("GEMINI_API_KEY"):
-        raise HTTPException(status_code=401, detail="Missing API Key!")
+        raise HTTPException(status_code=500, detail="Missing API Key!")
     
     from langchain_google_genai import ChatGoogleGenerativeAI
     from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
@@ -272,7 +296,7 @@ def chat(payload: ChatPayload, db: Session = Depends(database.get_db)):
         # LangChain integrates identically to how we handled it in Django
         llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
 
-        sys_prompt = "You are an expert Resume Coach. Help the user improve their resume. CRITICAL RULE: You must keep your answers EXTREMELY short, conversational, and punchy. Never exceed 2 to 3 sentences unless the user explicitly asks for a long, detailed rewrite. Do not hallucinate massive rambling lists."
+        sys_prompt = "You are an expert Resume Coach. Help the user improve their resume. CRITICAL RULE: You must keep your answers short, conversational, and punchy. Never exceed 3 to 4 sentences unless the user explicitly asks for a long, detailed rewrite. Do not hallucinate massive rambling lists."
         if payload.context:
             sys_prompt += f"\n\nContext from their recent resume scan:\nTarget Job: {payload.context.get('job_desc', 'N/A')}\nATS Match Level: {payload.context.get('ats_match_level', 'Unknown')}\nATS Score: {payload.context.get('ats_score', 'N/A')}/100\nMissing Keywords: {payload.context.get('gap_analysis', {}).get('missing_keywords', [])}\nSuggestions: {payload.context.get('gap_analysis', {}).get('suggestions', 'None')}\n\n[USER RESUME CONTENT]:\n{payload.context.get('resume_text', 'No resume text provided.')}"
 
